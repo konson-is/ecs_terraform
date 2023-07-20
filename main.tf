@@ -15,6 +15,47 @@ resource "aws_vpc" "sbcntrVPC" {
 }
 
 #--------------------
+# IGW
+#--------------------
+resource "aws_internet_gateway" "sbcntr-igw" {
+  vpc_id = aws_vpc.sbcntrVPC.id
+  tags = {
+    Name = "sbcntr-igw_TF"
+  }
+
+}
+
+resource "aws_route" "ingress_route_igw" {
+  route_table_id         = aws_route_table.sbcntr-route-ingress.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.sbcntr-igw.id
+}
+
+#--------------------
+# Route Table
+#--------------------
+
+resource "aws_route_table" "sbcntr-route-ingress" {
+  vpc_id = aws_vpc.sbcntrVPC.id
+  tags = {
+    Name = "sbcntr-route-ingress_TF"
+  }
+
+}
+
+resource "aws_route_table_association" "sbcntr-route-ingres_1a" {
+  route_table_id = aws_route_table.sbcntr-route-ingress.id
+  subnet_id      = aws_subnet.sbcntr-subnet-public-ingress-1a.id
+}
+
+resource "aws_route_table_association" "sbcntr-route-ingres_1c" {
+  route_table_id = aws_route_table.sbcntr-route-ingress.id
+  subnet_id      = aws_subnet.sbcntr-subnet-public-ingress-1c.id
+}
+
+
+
+#--------------------
 # Subnet(public)
 #--------------------
 
