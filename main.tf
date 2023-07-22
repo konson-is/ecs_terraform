@@ -6,179 +6,227 @@ provider "aws" {
 #--------------------
 # VPC
 #--------------------
-resource "aws_vpc" "sbcntrVPC" {
+resource "aws_vpc" "sbcntrVpc" {
   cidr_block = "10.0.0.0/16"
 
   tags = {
-    Name = "sbcntrVPC_from_TF"
+    Name = "sbcntrVpc-from-TF"
   }
 }
 
 #--------------------
-# IGW
+# Subnet,RouteTable,IGW
 #--------------------
-resource "aws_internet_gateway" "sbcntr-igw" {
-  vpc_id = aws_vpc.sbcntrVPC.id
+
+# IGWの作成
+resource "aws_internet_gateway" "sbcntrIgw" {
+  vpc_id = aws_vpc.sbcntrVpc.id
   tags = {
-    Name = "sbcntr-igw_TF"
+    Name = "sbcntr-igw-TF"
   }
 
 }
 
-resource "aws_route" "ingress_route_igw" {
-  route_table_id         = aws_route_table.sbcntr-route-ingress.id
+# コンテナ周りの設定
+## コンテナアプリ用のプライベートサブネット
+
+resource "aws_subnet" "sbcntrSubnetPrivateContainer1A" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1a"
+  cidr_block              = "10.0.8.0/24"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "sbcntr-subnet-private-container-1a-from-TF"
+    Type = "Isolated"
+  }
+}
+
+resource "aws_subnet" "sbcntrSubnetPrivateContainer1C" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1c"
+  cidr_block              = "10.0.9.0/24"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "sbcntr-subnet-private-container-1c-from-TF"
+    Type = "Isolated"
+  }
+
+}
+
+## コンテナアプリ用のルートテーブル
+resource "aws_route_table" "sbcntrRouteApp" {
+  vpc_id = aws_vpc.sbcntrVpc.id
+  tags = {
+    Name = "sbcntr-route-app-from-TF"
+  }
+}
+
+## コンテナサブネットへルート紐付け
+resource "aws_route_table_association" "sbcntrRouteAppAssociation1A" {
+  route_table_id = aws_route_table.sbcntrRouteApp.id
+  subnet_id      = aws_subnet.sbcntrSubnetPrivateContainer1A.id
+}
+
+resource "aws_route_table_association" "sbcntrRouteAppAssociation1C" {
+  route_table_id = aws_route_table.sbcntrRouteApp.id
+  subnet_id      = aws_subnet.sbcntrSubnetPrivateContainer1C.id
+}
+
+# DB周りの設定
+## DB用のプライベートサブネット
+
+resource "aws_subnet" "sbcntrSubnetPrivateDb1A" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1a"
+  cidr_block              = "10.0.16.0/24"
+  map_public_ip_on_launch = false
+  tags = {
+    Name = "sbcntr-subnet-private-db-1a-from-TF"
+  }
+
+}
+
+resource "aws_subnet" "sbcntrSubnetPrivateDb1C" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1c"
+  cidr_block              = "10.0.17.0/24"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "sbcntr-subnet-private-db-1c-from-TF"
+  }
+
+}
+
+## DB用のルートテーブル
+resource "aws_route_table" "sbcntrRouteDb" {
+  vpc_id = aws_vpc.sbcntrVpc.id
+  tags = {
+    Name = "sbcntr-route-db-from-TF"
+  }
+}
+
+## DBサブネットへルート紐付け
+resource "aws_route_table_association" "sbcntrRouteDbAssociation1A" {
+  route_table_id = aws_route_table.sbcntrRouteDb.id
+  subnet_id      = aws_subnet.sbcntrSubnetPrivateDb1A.id
+}
+
+resource "aws_route_table_association" "sbcntrRouteDbAssociation1C" {
+  route_table_id = aws_route_table.sbcntrRouteDb.id
+  subnet_id      = aws_subnet.sbcntrSubnetPrivateDb1C.id
+}
+
+# Ingress周りの設定
+## Ingress用のパブリックサブネット
+
+resource "aws_subnet" "sbcntrSubnetPublicIngress1A" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1a"
+  cidr_block              = "10.0.0.0/24"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "sbcntr-subnet-public-ingress-1a-from-TF"
+  }
+
+}
+
+resource "aws_subnet" "sbcntrSubnetPublicIngress1C" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1c"
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "sbcntr-subnet-public-ingress-1c-from-TF"
+  }
+
+}
+
+## Ingress用のルートテーブル
+resource "aws_route_table" "sbcntrRouteIngress" {
+  vpc_id = aws_vpc.sbcntrVpc.id
+  tags = {
+    Name = "sbcntr-route-ingress-TF"
+  }
+
+}
+
+## Ingressサブネットへルート紐付け
+resource "aws_route_table_association" "sbcntrRouteIngressAssociation1A" {
+  route_table_id = aws_route_table.sbcntrRouteIngress.id
+  subnet_id      = aws_subnet.sbcntrSubnetPublicIngress1A.id
+}
+
+resource "aws_route_table_association" "sbcntrRouteIngressAssociation1C" {
+  route_table_id = aws_route_table.sbcntrRouteIngress.id
+  subnet_id      = aws_subnet.sbcntrSubnetPublicIngress1C.id
+}
+
+## Ingress用ルートテーブルのデフォルトルート
+resource "aws_route" "sbcntrRouteIngressDefault" {
+  route_table_id         = aws_route_table.sbcntrRouteIngress.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.sbcntr-igw.id
+  gateway_id             = aws_internet_gateway.sbcntrIgw.id
 }
 
-#--------------------
-# Route Table
-#--------------------
+# Egress周りの設定
+## VPCエンドポイント(Egress通信)用のプライベートサブネット
 
-resource "aws_route_table" "sbcntr-route-ingress" {
-  vpc_id = aws_vpc.sbcntrVPC.id
+resource "aws_subnet" "sbcntrSubnetPrivateEgress1A" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1a"
+  cidr_block              = "10.0.248.0/24"
+  map_public_ip_on_launch = false
+
   tags = {
-    Name = "sbcntr-route-ingress_TF"
+    Name = "sbcntr-subnet-private-egress-1a-from-TF"
   }
 
 }
 
-resource "aws_route_table_association" "sbcntr-route-ingres_1a" {
-  route_table_id = aws_route_table.sbcntr-route-ingress.id
-  subnet_id      = aws_subnet.sbcntr-subnet-public-ingress-1a.id
-}
-
-resource "aws_route_table_association" "sbcntr-route-ingres_1c" {
-  route_table_id = aws_route_table.sbcntr-route-ingress.id
-  subnet_id      = aws_subnet.sbcntr-subnet-public-ingress-1c.id
-}
-
-
-
-#--------------------
-# Subnet(public)
-#--------------------
-
-# ingress 1a
-resource "aws_subnet" "sbcntr-subnet-public-ingress-1a" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1a"
-  cidr_block        = "10.0.0.0/24"
+resource "aws_subnet" "sbcntrSubnetPrivateEgress1C" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1c"
+  cidr_block              = "10.0.249.0/24"
+  map_public_ip_on_launch = false
 
   tags = {
-    Name = "sbcntr-subnet-public-ingress-1a_from_TF"
+    Name = "sbcntr-subnet-private-egress-1c-from-TF"
   }
 
 }
 
-# ingress 1c
-resource "aws_subnet" "sbcntr-subnet-public-ingress-1c" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1c"
-  cidr_block        = "10.0.1.0/24"
+
+# 管理用サーバ周りの設定
+## 管理用のパブリックサブネット
+resource "aws_subnet" "sbcntrSubnetPublicManagement1A" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1a"
+  cidr_block              = "10.0.240.0/24"
+  map_public_ip_on_launch = true
 
   tags = {
-    Name = "sbcntr-subnet-public-ingress-1c_from_TF"
+    Name = "sbcntr-subnet-public-management-1a-from-TF"
+  }
+
+}
+resource "aws_subnet" "sbcntrSubnetPublicManagement1C" {
+  vpc_id                  = aws_vpc.sbcntrVpc.id
+  availability_zone       = "ap-northeast-1c"
+  cidr_block              = "10.0.241.0/24"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "sbcntr-subnet-public-management-1c-from-TF"
   }
 
 }
 
-# management 1a
-resource "aws_subnet" "sbcntr-subnet-public-management-1a" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1a"
-  cidr_block        = "10.0.240.0/24"
 
-  tags = {
-    Name = "sbcntr-subnet-public-management-1a_from_TF"
-  }
 
-}
 
-# management 1c
-resource "aws_subnet" "sbcntr-subnet-public-management-1c" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1c"
-  cidr_block        = "10.0.241.0/24"
 
-  tags = {
-    Name = "sbcntr-subnet-public-management-1c_from_TF"
-  }
-
-}
-
-#--------------------
-# Subnet(private)
-#--------------------
-
-# egress 1a
-resource "aws_subnet" "sbcntr-subnet-private-egress-1a" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1a"
-  cidr_block        = "10.0.248.0/24"
-
-  tags = {
-    Name = "sbcntr-subnet-private-egress-1a_from_TF"
-  }
-
-}
-
-# egress 1c
-resource "aws_subnet" "sbcntr-subnet-private-egress-1c" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1c"
-  cidr_block        = "10.0.249.0/24"
-
-  tags = {
-    Name = "sbcntr-subnet-private-egress-1c_from_TF"
-  }
-
-}
-
-# db 1a
-resource "aws_subnet" "sbcntr-subnet-private-db-1a" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1a"
-  cidr_block        = "10.0.16.0/24"
-
-  tags = {
-    Name = "sbcntr-subnet-private-db-1a_from_TF"
-  }
-
-}
-
-# db 1c
-resource "aws_subnet" "sbcntr-subnet-private-db-1c" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1c"
-  cidr_block        = "10.0.17.0/24"
-
-  tags = {
-    Name = "sbcntr-subnet-private-db-1c_from_TF"
-  }
-
-}
-
-# container 1a
-resource "aws_subnet" "sbcntr-subnet-private-container-1a" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1a"
-  cidr_block        = "10.0.8.0/24"
-
-  tags = {
-    Name = "sbcntr-subnet-private-container-1a_from_TF"
-  }
-
-}
-
-# container 1c
-resource "aws_subnet" "sbcntr-subnet-private-container-1c" {
-  vpc_id            = aws_vpc.sbcntrVPC.id
-  availability_zone = "ap-northeast-1c"
-  cidr_block        = "10.0.9.0/24"
-
-  tags = {
-    Name = "sbcntr-subnet-private-container-1c_from_TF"
-  }
-
-}
