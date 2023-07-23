@@ -226,6 +226,17 @@ resource "aws_subnet" "sbcntrSubnetPublicManagement1C" {
 
 }
 
+## ルートテーブルの紐付け
+resource "aws_route_table_association" "sbcntrRouteManagementAssociation1A" {
+  route_table_id = aws_route_table.sbcntrRouteIngress.id
+  subnet_id      = aws_subnet.sbcntrSubnetPublicManagement1A.id
+}
+
+resource "aws_route_table_association" "sbcntrRouteManagementAssociation1C" {
+  route_table_id = aws_route_table.sbcntrRouteIngress.id
+  subnet_id      = aws_subnet.sbcntrSubnetPublicManagement1C.id
+}
+
 
 
 
