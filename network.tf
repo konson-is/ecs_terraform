@@ -232,17 +232,18 @@ resource "aws_route_table_association" "sbcntrRouteManagementAssociation1C" {
   subnet_id      = aws_subnet.sbcntrSubnetPublicManagement1C.id
 }
 
-## VPCエンドポイント
+#--------------------
+# VPCエンドポイント
+#--------------------
+## S3ゲートウェイ
 resource "aws_vpc_endpoint" "sbcntrVpceS3" {
-  vpc_id            = aws_vpc.sbcntrVpc.id
-  # TODO:service_nameの値を共通
+  vpc_id = aws_vpc.sbcntrVpc.id
+  # TODO:service_nameのリージョン名を共通化
   service_name      = "com.amazonaws.ap-northeast-1.s3"
   vpc_endpoint_type = "Gateway"
   tags = {
     Name = "sbcntr-vpce-s3-from-TF"
   }
-
-
 }
 
 
