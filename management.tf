@@ -13,3 +13,21 @@ resource "aws_cloud9_environment_ec2" "sbcntrDev" {
     Environment = "Development"
   }
 }
+
+# cloud9に使用しているEC2インスタンスを取得
+data "aws_instance" "cloud9_instance" {
+  filter {
+    name = "tag:aws:cloud9:environment"
+    values = [
+    aws_cloud9_environment_ec2.sbcntrDev.id]
+  }
+}
+
+# cloud9のEC2インスタンスにセキュリティグループをアタッチ
+resource "aws_network_interface_sg_attachment" "cloud9ManagementSg" {
+  security_group_id    = aws_security_group.sbcntrSgManagement.id
+  network_interface_id = data.aws_instance.cloud9_instance.network_interface_id
+}
+
+
+
