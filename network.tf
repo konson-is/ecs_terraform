@@ -2,7 +2,9 @@
 # VPC
 #--------------------
 resource "aws_vpc" "sbcntrVpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
 
   tags = {
     Name = "sbcntrVpc-from-TF"
@@ -237,12 +239,38 @@ resource "aws_route_table_association" "sbcntrRouteManagementAssociation1C" {
 #--------------------
 ## S3ゲートウェイ
 resource "aws_vpc_endpoint" "sbcntrVpceS3" {
-  vpc_id = aws_vpc.sbcntrVpc.id
-  # TODO:service_nameのリージョン名を共通化
-  service_name      = "com.amazonaws.ap-northeast-1.s3"
+  vpc_id            = aws_vpc.sbcntrVpc.id
+  service_name      = "com.amazonaws.${var.region}.s3"
   vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.sbcntrRouteApp.id]
   tags = {
     Name = "sbcntr-vpce-s3-from-TF"
+  }
+}
+
+## ECR API エンドポイント
+resource "aws_vpc_endpoint" "sbcntrVpceEcrApi" {
+  vpc_id              = aws_vpc.sbcntrVpc.id
+  service_name        = "com.amazonaws.${var.region}.ecr.api"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.sbcntrSubnetPrivateEgress1A.id, aws_subnet.sbcntrSubnetPrivateEgress1C.id]
+  private_dns_enabled = true
+  security_group_ids  = [aws_security_group.sbcntrSgEgress.id]
+  tags = {
+    Name = "sbcntr-vpce-ecr-api-from-TF"
+  }
+}
+
+## ECR DockerClient エンドポイント
+resource "aws_vpc_endpoint" "sbcntrVpceEcrDocker" {
+  vpc_id              = aws_vpc.sbcntrVpc.id
+  service_name        = "com.amazonaws.${var.region}.ecr.dkr"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.sbcntrSubnetPrivateEgress1A.id, aws_subnet.sbcntrSubnetPrivateEgress1C.id]
+  private_dns_enabled = true
+  security_group_ids  = [aws_security_group.sbcntrSgEgress.id]
+  tags = {
+    Name = "sbcntr-vpce-ecr-dkr-from-TF"
   }
 }
 
