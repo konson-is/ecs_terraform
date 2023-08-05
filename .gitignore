@@ -5,4 +5,4 @@ terraform.tfstate.backup
 .pluralith/pluralith.cache.json
 .pluralith/pluralith.plan.bin
 .pluralith/pluralith.state.json
-secret.tf
+secret_vars.tf
