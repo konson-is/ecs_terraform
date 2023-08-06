@@ -249,30 +249,32 @@ resource "aws_vpc_endpoint" "sbcntrVpceS3" {
 }
 
 ## ECR API エンドポイント
-resource "aws_vpc_endpoint" "sbcntrVpceEcrApi" {
-  vpc_id              = aws_vpc.sbcntrVpc.id
-  service_name        = "com.amazonaws.${var.region}.ecr.api"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.sbcntrSubnetPrivateEgress1A.id, aws_subnet.sbcntrSubnetPrivateEgress1C.id]
-  private_dns_enabled = true
-  security_group_ids  = [aws_security_group.sbcntrSgEgress.id]
-  tags = {
-    Name = "sbcntr-vpce-ecr-api-from-TF"
-  }
-}
+# WARNING:料金が高いので使用しない時はコメントアウトする
+# resource "aws_vpc_endpoint" "sbcntrVpceEcrApi" {
+#   vpc_id              = aws_vpc.sbcntrVpc.id
+#   service_name        = "com.amazonaws.${var.region}.ecr.api"
+#   vpc_endpoint_type   = "Interface"
+#   subnet_ids          = [aws_subnet.sbcntrSubnetPrivateEgress1A.id, aws_subnet.sbcntrSubnetPrivateEgress1C.id]
+#   private_dns_enabled = true
+#   security_group_ids  = [aws_security_group.sbcntrSgEgress.id]
+#   tags = {
+#     Name = "sbcntr-vpce-ecr-api-from-TF"
+#   }
+# }
 
 ## ECR DockerClient エンドポイント
-resource "aws_vpc_endpoint" "sbcntrVpceEcrDocker" {
-  vpc_id              = aws_vpc.sbcntrVpc.id
-  service_name        = "com.amazonaws.${var.region}.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.sbcntrSubnetPrivateEgress1A.id, aws_subnet.sbcntrSubnetPrivateEgress1C.id]
-  private_dns_enabled = true
-  security_group_ids  = [aws_security_group.sbcntrSgEgress.id]
-  tags = {
-    Name = "sbcntr-vpce-ecr-dkr-from-TF"
-  }
-}
+# WARNING:料金が高いので使用しない時はコメントアウトする
+# resource "aws_vpc_endpoint" "sbcntrVpceEcrDocker" {
+#   vpc_id              = aws_vpc.sbcntrVpc.id
+#   service_name        = "com.amazonaws.${var.region}.ecr.dkr"
+#   vpc_endpoint_type   = "Interface"
+#   subnet_ids          = [aws_subnet.sbcntrSubnetPrivateEgress1A.id, aws_subnet.sbcntrSubnetPrivateEgress1C.id]
+#   private_dns_enabled = true
+#   security_group_ids  = [aws_security_group.sbcntrSgEgress.id]
+#   tags = {
+#     Name = "sbcntr-vpce-ecr-dkr-from-TF"
+#   }
+# }
 
 
 
