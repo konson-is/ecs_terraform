@@ -236,6 +236,7 @@ resource "aws_route_table_association" "sbcntrRouteManagementAssociation1C" {
 
 #--------------------
 # VPCエンドポイント
+# WARNING:インターフェイス型のエンドポイントは料金がかかるので、使用しない時はコメントアウトして構成から削除しておく
 #--------------------
 ## S3ゲートウェイ
 resource "aws_vpc_endpoint" "sbcntrVpceS3" {
@@ -249,7 +250,6 @@ resource "aws_vpc_endpoint" "sbcntrVpceS3" {
 }
 
 ## ECR API エンドポイント
-# WARNING:料金が高いので使用しない時はコメントアウトする
 # resource "aws_vpc_endpoint" "sbcntrVpceEcrApi" {
 #   vpc_id              = aws_vpc.sbcntrVpc.id
 #   service_name        = "com.amazonaws.${var.region}.ecr.api"
@@ -263,7 +263,6 @@ resource "aws_vpc_endpoint" "sbcntrVpceS3" {
 # }
 
 ## ECR DockerClient エンドポイント
-# WARNING:料金が高いので使用しない時はコメントアウトする
 # resource "aws_vpc_endpoint" "sbcntrVpceEcrDocker" {
 #   vpc_id              = aws_vpc.sbcntrVpc.id
 #   service_name        = "com.amazonaws.${var.region}.ecr.dkr"
@@ -273,6 +272,19 @@ resource "aws_vpc_endpoint" "sbcntrVpceS3" {
 #   security_group_ids  = [aws_security_group.sbcntrSgEgress.id]
 #   tags = {
 #     Name = "sbcntr-vpce-ecr-dkr-from-TF"
+#   }
+# }
+
+## cloudwatch エンドポイント
+# resource "aws_vpc_endpoint" "sbcntr_vpce_logs" {
+#   vpc_id              = aws_vpc.sbcntrVpc.id
+#   service_name        = "com.amazonaws.${var.region}.logs"
+#   vpc_endpoint_type   = "Interface"
+#   subnet_ids          = [aws_subnet.sbcntrSubnetPrivateEgress1A.id, aws_subnet.sbcntrSubnetPrivateEgress1C.id]
+#   private_dns_enabled = true
+#   security_group_ids  = [aws_security_group.sbcntrSgEgress.id]
+#   tags = {
+#     Name = "sbcntr_vpce_logs_from_TF"
 #   }
 # }
 
