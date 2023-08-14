@@ -3,8 +3,8 @@
 #--------------------
 
 # ECR repoの操作
-resource "aws_iam_policy" "sbcntr_accessing_ecr_repository_policy" {
-  name        = "sbcntr-AccessingECRRepositoryPolicy-from-TF"
+resource "aws_iam_policy" "sbcntr-accessing-ecr-repository-policy" {
+  name        = "sbcntr-accessing-ecr-repository-policy-from-TF"
   description = "Plicy to access ECR repo from Cloud9 instance"
   policy = jsonencode(
     {
@@ -17,8 +17,8 @@ resource "aws_iam_policy" "sbcntr_accessing_ecr_repository_policy" {
             "ecr:ListImages"
           ],
           "Resource" : [
-            "arn:aws:ecr:${var.region}:${var.account_id}:repository/${regex("^.*/(.*)$", aws_ecr_repository.sbcntrBackend.repository_url)[0]}",
-            "arn:aws:ecr:${var.region}:${var.account_id}:repository/${regex("^.*/(.*)$", aws_ecr_repository.sbcntrFrontend.repository_url)[0]}",
+            "arn:aws:ecr:${var.region}:${var.account-id}:repository/${regex("^.*/(.*)$", aws_ecr_repository.sbcntr-backend.repository_url)[0]}",
+            "arn:aws:ecr:${var.region}:${var.account-id}:repository/${regex("^.*/(.*)$", aws_ecr_repository.sbcntr-frontend.repository_url)[0]}",
           ]
         },
         {
@@ -46,8 +46,8 @@ resource "aws_iam_policy" "sbcntr_accessing_ecr_repository_policy" {
             "ecr:PutImage"
           ],
           "Resource" : [
-            "arn:aws:ecr:${var.region}:${var.account_id}:repository/${regex("^.*/(.*)$", aws_ecr_repository.sbcntrBackend.repository_url)[0]}",
-            "arn:aws:ecr:${var.region}:${var.account_id}:repository/${regex("^.*/(.*)$", aws_ecr_repository.sbcntrFrontend.repository_url)[0]}",
+            "arn:aws:ecr:${var.region}:${var.account-id}:repository/${regex("^.*/(.*)$", aws_ecr_repository.sbcntr-backend.repository_url)[0]}",
+            "arn:aws:ecr:${var.region}:${var.account-id}:repository/${regex("^.*/(.*)$", aws_ecr_repository.sbcntr-frontend.repository_url)[0]}",
           ]
         }
       ]
@@ -59,7 +59,7 @@ resource "aws_iam_policy" "sbcntr_accessing_ecr_repository_policy" {
 # policy document
 #--------------------
 
-data "aws_iam_policy_document" "ec2_assume_role" {
+data "aws_iam_policy_document" "ec2-assume-role" {
   statement {
     actions = ["sts:AssumeRole"]
     principals {
@@ -73,22 +73,22 @@ data "aws_iam_policy_document" "ec2_assume_role" {
 # IAM Role
 #--------------------
 ## Cloud9のEC2にアタッチするロール
-resource "aws_iam_role" "sbcntr_cloud9_role" {
+resource "aws_iam_role" "sbcntr-cloud9-role" {
   name               = "sbcntr-cloud9-role-from-TF"
-  assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.ec2-assume-role.json
 }
 
-resource "aws_iam_role_policy_attachment" "iam_role_cloud9_policy_attachment" {
-  role       = aws_iam_role.sbcntr_cloud9_role.name
-  policy_arn = aws_iam_policy.sbcntr_accessing_ecr_repository_policy.arn
+resource "aws_iam_role_policy_attachment" "iam-role-cloud9-policy-attachment" {
+  role       = aws_iam_role.sbcntr-cloud9-role.name
+  policy_arn = aws_iam_policy.sbcntr-accessing-ecr-repository-policy.arn
 }
 
-resource "aws_iam_instance_profile" "cloud9_profile" {
-  name = aws_iam_role.sbcntr_cloud9_role.name
-  role = aws_iam_role.sbcntr_cloud9_role.name
+resource "aws_iam_instance_profile" "cloud9-profile" {
+  name = aws_iam_role.sbcntr-cloud9-role.name
+  role = aws_iam_role.sbcntr-cloud9-role.name
 }
 
-output "sbcntr_cloud9_role_name" {
-  value = aws_iam_role.sbcntr_cloud9_role.name
+output "sbcntr-cloud9-role-name" {
+  value = aws_iam_role.sbcntr-cloud9-role.name
 }
 

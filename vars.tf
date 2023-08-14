@@ -4,7 +4,7 @@ variable "region" {
 
 }
 
-variable "egressDefaultRule" {
+variable "egress-default-rule" {
   type = object({
     description      = string
     protocol         = string
