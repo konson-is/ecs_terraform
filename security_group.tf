@@ -74,7 +74,40 @@ resource "aws_security_group" "sbcntr-sg-internal" {
   name        = "internal"
   description = "Security group for internal load balancer"
   vpc_id      = aws_vpc.sbcntr-vpc.id
-  egress      = [var.egress-default-rule]
+  ingress = [{
+    description      = "HTTP for management server"
+    protocol         = "tcp"
+    from_port        = 80
+    to_port          = 80
+    cidr_blocks      = []
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups  = [aws_security_group.sbcntr-sg-management.id]
+    self             = false
+
+    }, {
+    description      = "HTTP for front container"
+    protocol         = "tcp"
+    from_port        = 80
+    to_port          = 80
+    cidr_blocks      = []
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups  = [aws_security_group.sbcntr-sg-front-container.id]
+    self             = false
+    }, {
+    description      = "Test port for management server"
+    protocol         = "tcp"
+    from_port        = 10080
+    to_port          = 10080
+    cidr_blocks      = []
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups  = [aws_security_group.sbcntr-sg-management.id]
+    self             = false
+
+  }]
+  egress = [var.egress-default-rule]
   tags = {
     Name = "sbcntr-sg-internal-from-TF"
   }
