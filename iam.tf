@@ -69,6 +69,16 @@ data "aws_iam_policy_document" "ec2-assume-role" {
   }
 }
 
+data "aws_iam_policy_document" "code-deploy-assume-role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["codedeploy.amazonaws.com"]
+    }
+  }
+}
+
 #--------------------
 # IAM Role
 #--------------------
@@ -92,3 +102,18 @@ output "sbcntr-cloud9-role-name" {
   value = aws_iam_role.sbcntr-cloud9-role.name
 }
 
+## ECSを利用するCodeDeployにアタッチするロール
+resource "aws_iam_role" "sbcntr-code-deploy-role" {
+  name               = "sbcntr-code-deploy-role-from-TF"
+  assume_role_policy = data.aws_iam_policy_document.code-deploy-assume-role.json
+}
+
+resource "aws_iam_role_policy_attachment" "iam-role-code-deploy-policy-attachment" {
+  role       = aws_iam_role.sbcntr-code-deploy-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
+}
+
+resource "aws_iam_instance_profile" "sbcntr-code-deploy-profile" {
+  name = aws_iam_role.sbcntr-code-deploy-role.name
+  role = aws_iam_role.sbcntr-code-deploy-role.name
+}
