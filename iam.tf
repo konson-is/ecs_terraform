@@ -79,6 +79,16 @@ data "aws_iam_policy_document" "code-deploy-assume-role" {
   }
 }
 
+data "aws_iam_policy_document" "ecs-tasks-assume-role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
 #--------------------
 # IAM Role
 #--------------------
@@ -116,4 +126,20 @@ resource "aws_iam_role_policy_attachment" "iam-role-code-deploy-policy-attachmen
 resource "aws_iam_instance_profile" "sbcntr-code-deploy-profile" {
   name = aws_iam_role.sbcntr-code-deploy-role.name
   role = aws_iam_role.sbcntr-code-deploy-role.name
+}
+
+## ECSタスク実行のロール
+resource "aws_iam_role" "sbcntr-ecs-task-execution-role" {
+  name               = "ecsTaskExecutionRole"
+  assume_role_policy = data.aws_iam_policy_document.ecs-tasks-assume-role.json
+}
+
+resource "aws_iam_role_policy_attachment" "iam-role-ecs-task-execution-policy-attachment" {
+  role       = aws_iam_role.sbcntr-ecs-task-execution-role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_instance_profile" "ecs-task-execution-profile" {
+  name = aws_iam_role.sbcntr-ecs-task-execution-role.name
+  role = aws_iam_role.sbcntr-ecs-task-execution-role.name
 }
