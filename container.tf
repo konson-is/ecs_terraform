@@ -53,6 +53,18 @@ resource "aws_ecs_task_definition" "sbcntr-backend-taskdef" {
             }
     }
   ])
+}
 
+#--------------------
+# cluster
+#--------------------
 
+# backend
+resource "aws_ecs_cluster" "sbcntr-backend-cluster" {
+  name = "sbcntr-ecs-backend-cluster-from-TF"
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+  
 }
