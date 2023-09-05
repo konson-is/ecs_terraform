@@ -52,6 +52,17 @@ resource "aws_security_group" "sbcntr-sg-container" {
   name        = "container"
   description = "Security Group of backend app"
   vpc_id      = aws_vpc.sbcntr-vpc.id
+  ingress = [{
+    description      = "from internal lb"
+    protocol         = "-1"
+    to_port          = 0
+    from_port        = 0
+    cidr_blocks      = []
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups = [aws_security_group.sbcntr-sg-internal.id]
+    self             = false
+  }]
   egress      = [var.egress-default-rule]
   tags = {
     Name = "sbcntr-sg-container-from-TF"
