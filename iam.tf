@@ -139,6 +139,16 @@ resource "aws_iam_role_policy_attachment" "iam-role-ecs-task-execution-policy-at
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "iam-role-ec2-container-readonly-policy-attachment" {
+  role       = aws_iam_role.sbcntr-ecs-task-execution-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "iam-role-hoge" {
+  role       = aws_iam_role.sbcntr-ecs-task-execution-role.name
+  policy_arn = aws_iam_policy.sbcntr-accessing-ecr-repository-policy.arn
+}
+
 resource "aws_iam_instance_profile" "ecs-task-execution-profile" {
   name = aws_iam_role.sbcntr-ecs-task-execution-role.name
   role = aws_iam_role.sbcntr-ecs-task-execution-role.name
