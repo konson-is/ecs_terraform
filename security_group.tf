@@ -129,7 +129,18 @@ resource "aws_security_group" "sbcntr-sg-egress" {
   name        = "egress"
   description = "Security Group of VPC Endpoint"
   vpc_id      = aws_vpc.sbcntr-vpc.id
-  egress      = [var.egress-default-rule]
+  ingress = [{
+    description      = "from container"
+    protocol         = "tcp"
+    to_port          = 443
+    from_port        = 443
+    cidr_blocks      = [aws_vpc.sbcntr-vpc.cidr_block]
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups = [aws_security_group.sbcntr-sg-container.id]
+    self             = false
+  }]
+  egress = [var.egress-default-rule]
   tags = {
     Name = "sbcntr-sg-egress-from-TF"
   }
