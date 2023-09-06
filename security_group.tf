@@ -74,6 +74,17 @@ resource "aws_security_group" "sbcntr-sg-front-container" {
   name        = "front-container"
   description = "Security Group of front container app"
   vpc_id      = aws_vpc.sbcntr-vpc.id
+  ingress = [{
+    description      = "from ingress lb"
+    protocol         = "tcp"
+    to_port          = 80
+    from_port        = 80
+    cidr_blocks      = []
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups = [aws_security_group.sbcntr-sg-ingress.id]
+    self             = false
+  }]
   egress      = [var.egress-default-rule]
   tags = {
     Name = "sbcntr-sg-front-container-from-TF"
