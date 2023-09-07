@@ -140,6 +140,17 @@ resource "aws_security_group" "sbcntr-sg-db" {
   name        = "database"
   description = "Security Group of database"
   vpc_id      = aws_vpc.sbcntr-vpc.id
+  ingress = [{
+    description      = "from container and management"
+    protocol         = "tcp"
+    to_port          = 3306
+    from_port        = 3306
+    cidr_blocks      = []
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups = [aws_security_group.sbcntr-sg-container.id,aws_security_group.sbcntr-sg-management.id]
+    self             = false
+  }]
   egress      = [var.egress-default-rule]
   tags = {
     Name = "sbcntr-sg-db-from-TF"
