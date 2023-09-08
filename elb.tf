@@ -84,45 +84,45 @@ resource "aws_lb_target_group_attachment" "sbcntr-alb-target-group-attachment-gr
 #--------------------
 
 # alb
-# resource "aws_lb" "sbcntr-alb-ingress-frontend" {
-#   name               = "sbcntr-alb-frontend-from-TF"
-#   internal           = false
-#   load_balancer_type = "application"
-#   subnets            = [aws_subnet.sbcntr-subnet-public-ingress-1a.id,aws_subnet.sbcntr-subnet-public-ingress-1c.id]
-#   security_groups    = [aws_security_group.sbcntr-sg-ingress.id]
-# }
+resource "aws_lb" "sbcntr-alb-ingress-frontend" {
+  name               = "sbcntr-alb-frontend-from-TF"
+  internal           = false
+  load_balancer_type = "application"
+  subnets            = [aws_subnet.sbcntr-subnet-public-ingress-1a.id, aws_subnet.sbcntr-subnet-public-ingress-1c.id]
+  security_groups    = [aws_security_group.sbcntr-sg-ingress.id]
+}
 
 # target group
-# resource "aws_lb_target_group" "sbcntr-tg-frontend" {
-#   name        = "sbcntr-tg-frontend"
-#   protocol    = "HTTP"
-#   port        = 80
-#   target_type = "ip"
-#   vpc_id      = aws_vpc.sbcntr-vpc.id
-#   health_check {
-#     path                = "/healthcheck"
-#     enabled             = true
-#     healthy_threshold   = 3
-#     unhealthy_threshold = 2
-#     timeout             = 5
-#     interval            = 15
-#     matcher             = "200"
-#   }
-# }
+resource "aws_lb_target_group" "sbcntr-tg-frontend" {
+  name        = "sbcntr-tg-frontend"
+  protocol    = "HTTP"
+  port        = 80
+  target_type = "ip"
+  vpc_id      = aws_vpc.sbcntr-vpc.id
+  health_check {
+    path                = "/healthcheck"
+    enabled             = true
+    healthy_threshold   = 3
+    unhealthy_threshold = 2
+    timeout             = 5
+    interval            = 15
+    matcher             = "200"
+  }
+}
 
 # listener
-# resource "aws_lb_listener" "sbcntr-frontend-listener" {
-#   load_balancer_arn = aws_lb.sbcntr-alb-ingress-frontend.arn
-#   port              = 80
-#   protocol          = "HTTP"
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.sbcntr-tg-frontend.arn
-#   }
-# }
+resource "aws_lb_listener" "sbcntr-frontend-listener" {
+  load_balancer_arn = aws_lb.sbcntr-alb-ingress-frontend.arn
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.sbcntr-tg-frontend.arn
+  }
+}
 
-# resource "aws_lb_target_group_attachment" "sbcntr-alb-target-group-attachment-frontend" {
-#   target_group_arn = aws_lb_target_group.sbcntr-tg-frontend.arn
-#   target_id        = "10.0.8.101"
-# }
+resource "aws_lb_target_group_attachment" "sbcntr-alb-target-group-attachment-frontend" {
+  target_group_arn = aws_lb_target_group.sbcntr-tg-frontend.arn
+  target_id        = "10.0.8.101"
+}
 

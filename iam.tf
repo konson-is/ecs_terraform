@@ -55,6 +55,27 @@ resource "aws_iam_policy" "sbcntr-accessing-ecr-repository-policy" {
   )
 }
 
+# secrets managere取得
+resource "aws_iam_policy" "sbcntr-accessing-secrets-manager-policy" {
+  name = "sbcntr-GettingSecretsPolicy"
+  policy = jsonencode(
+    {
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Sid" : "GetSecretForECS",
+          "Effect" : "Allow",
+          "Action" : [
+            "secretsmanager:GetSecretValue"
+          ],
+          "Resource" : ["*"]
+        }
+      ]
+    }
+  )
+}
+
+
 #--------------------
 # policy document
 #--------------------
@@ -144,9 +165,9 @@ resource "aws_iam_role_policy_attachment" "iam-role-ec2-container-readonly-polic
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-resource "aws_iam_role_policy_attachment" "iam-role-hoge" {
+resource "aws_iam_role_policy_attachment" "iam-role-accessing-secrets-manager-attachment" {
   role       = aws_iam_role.sbcntr-ecs-task-execution-role.name
-  policy_arn = aws_iam_policy.sbcntr-accessing-ecr-repository-policy.arn
+  policy_arn = aws_iam_policy.sbcntr-accessing-secrets-manager-policy.arn
 }
 
 resource "aws_iam_instance_profile" "ecs-task-execution-profile" {

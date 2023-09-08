@@ -288,5 +288,18 @@ resource "aws_vpc_endpoint" "sbcntr-vpce-logs" {
   }
 }
 
+## secrets manager エンドポイント
+resource "aws_vpc_endpoint" "sbcntr-vpce-secrets" {
+  vpc_id              = aws_vpc.sbcntr-vpc.id
+  service_name        = "com.amazonaws.${var.region}.secretsmanager"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.sbcntr-subnet-private-egress-1a.id, aws_subnet.sbcntr-subnet-private-egress-1c.id]
+  private_dns_enabled = true
+  security_group_ids  = [aws_security_group.sbcntr-sg-egress.id]
+  tags = {
+    Name = "sbcntr-vpce-secrets-from-TF"
+  }
+}
+
 
 

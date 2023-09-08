@@ -60,10 +60,10 @@ resource "aws_security_group" "sbcntr-sg-container" {
     cidr_blocks      = []
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
-    security_groups = [aws_security_group.sbcntr-sg-internal.id]
+    security_groups  = [aws_security_group.sbcntr-sg-internal.id]
     self             = false
   }]
-  egress      = [var.egress-default-rule]
+  egress = [var.egress-default-rule]
   tags = {
     Name = "sbcntr-sg-container-from-TF"
   }
@@ -82,10 +82,10 @@ resource "aws_security_group" "sbcntr-sg-front-container" {
     cidr_blocks      = []
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
-    security_groups = [aws_security_group.sbcntr-sg-ingress.id]
+    security_groups  = [aws_security_group.sbcntr-sg-ingress.id]
     self             = false
   }]
-  egress      = [var.egress-default-rule]
+  egress = [var.egress-default-rule]
   tags = {
     Name = "sbcntr-sg-front-container-from-TF"
   }
@@ -148,10 +148,10 @@ resource "aws_security_group" "sbcntr-sg-db" {
     cidr_blocks      = []
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
-    security_groups = [aws_security_group.sbcntr-sg-container.id,aws_security_group.sbcntr-sg-management.id]
+    security_groups  = [aws_security_group.sbcntr-sg-container.id, aws_security_group.sbcntr-sg-management.id, aws_security_group.sbcntr-sg-front-container.id]
     self             = false
   }]
-  egress      = [var.egress-default-rule]
+  egress = [var.egress-default-rule]
   tags = {
     Name = "sbcntr-sg-db-from-TF"
   }
@@ -170,7 +170,7 @@ resource "aws_security_group" "sbcntr-sg-egress" {
     cidr_blocks      = [aws_vpc.sbcntr-vpc.cidr_block]
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
-    security_groups = [aws_security_group.sbcntr-sg-container.id]
+    security_groups  = [aws_security_group.sbcntr-sg-container.id]
     self             = false
   }]
   egress = [var.egress-default-rule]
