@@ -10,7 +10,7 @@ resource "aws_secretsmanager_secret_version" "sbcntr-rds-auth-secret-version" {
   secret_id = aws_secretsmanager_secret.sbcntr-rds-auth-secret.id
   secret_string = jsonencode({
     "username" : "sbcntruser",
-    "password" : "${var.db-password}",
+    "password" : "${var.db-user-password}",
     "engine" : "mysql",
     "host" : "${aws_rds_cluster.sbcntr-rds-cluster.endpoint}"
     "port" : 3306,

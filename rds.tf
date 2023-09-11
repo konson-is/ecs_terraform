@@ -16,7 +16,7 @@ resource "aws_rds_cluster" "sbcntr-rds-cluster" {
   engine_version                  = "5.7.mysql_aurora.2.11.2"
   database_name                   = "sbcntrapp"
   master_username                 = "admin"
-  master_password                 = "password"
+  master_password                 = var.db-user-password
   backup_retention_period         = 1
   skip_final_snapshot             = true
   enabled_cloudwatch_logs_exports = ["audit", "error", "slowquery"]
@@ -28,7 +28,7 @@ resource "aws_rds_cluster" "sbcntr-rds-cluster" {
   apply_immediately               = true
   db_cluster_parameter_group_name = "default.aurora-mysql5.7"
   copy_tags_to_snapshot           = true
-  snapshot_identifier             = "sbcntr-db"
+  snapshot_identifier             = data.aws_db_cluster_snapshot.sbcntr-db-snapshot.id
 }
 
 resource "aws_rds_cluster_instance" "sbcntr-rds-cluster-instance" {
@@ -40,4 +40,13 @@ resource "aws_rds_cluster_instance" "sbcntr-rds-cluster-instance" {
   engine_version          = aws_rds_cluster.sbcntr-rds-cluster.engine_version
   db_subnet_group_name    = aws_rds_cluster.sbcntr-rds-cluster.db_subnet_group_name
   db_parameter_group_name = aws_rds_cluster.sbcntr-rds-cluster.db_cluster_parameter_group_name
+}
+
+#--------------------
+# db snapshot
+#--------------------
+# スナップショットを用意しておく（Auroraが無料枠外であることから、必要なときだけ同じDB構成で起動できるようにしておくため）
+data "aws_db_cluster_snapshot" "sbcntr-db-snapshot" {
+  db_cluster_snapshot_identifier = "sbcntr-db-snapshot"
+  most_recent                    = true
 }
